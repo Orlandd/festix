@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Models\EventImage;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -29,7 +33,42 @@ class EventController extends Controller
      */
     public function store(StoreEventRequest $request)
     {
-        //
+        $request->merge(['id' => Str::uuid()->toString()]);
+        $request->validate([
+            'name' => ['required', 'max:100'],
+            'date' => ['required', 'date'],
+            'time' => ['required', 'date_format:H:i'],
+            'description' => ['required', 'string'],
+            'image_file' => ['nullable', 'mimes:jpg,png'],
+        ]);
+
+        if ($request->file('image_file')) {
+            $file = $request->file('image_file');
+            // $filename = $file->getClientOriginalName();
+            $fileExtension = $file->getClientOriginalExtension();
+            $newName = Carbon::now()->timestamp . '_' . $request->id . '.' . $fileExtension;
+
+            Storage::disk('public')->putFileAs('quizzes', $file, $newName);
+            $request['name'] = $newName;
+            $request['url'] = env('APP_URL') . '/storage/event/' . $newName;
+        }
+
+        Event::create(
+            $request->only([
+                'id',
+                'name',
+                'date',
+                'time',
+                'description',
+            ])
+        );
+
+        EventImage::create([
+            'id' => Str::uuid()->toString(),
+            'name' => $newName,
+            'url' => $request->url,
+            'event_id' => $request->id,
+        ]);
     }
 
     /**
@@ -53,7 +92,13 @@ class EventController extends Controller
      */
     public function update(UpdateEventRequest $request, Event $event)
     {
-        //
+        $request->validate([
+            'name' => ['required', 'max:100'],
+            'date' => ['required', 'date'],
+            'time' => ['required', 'date_format:H:i'],
+            'description' => ['required', 'string'],
+            'image_file' => ['nullable', 'mimes:jpg,png'],
+        ]);
     }
 
     /**
