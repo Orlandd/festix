@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuthTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
+use App\Models\AuthToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +17,8 @@ Route::prefix('auth')->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->middleware(['auth:sanctum']);
     Route::get('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum']);
     Route::post('/register', [UserController::class, 'register']);
+    Route::post('/{user_id}/otp-validation', [AuthTokenController::class, 'index']);
+    Route::post('/get-token', [AuthTokenController::class, 'token']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {

@@ -26,7 +26,7 @@ class AuthController extends Controller
         }
 
         // menghapus data yang akan direturn 
-        unset($user->email_verified_at);
+        // unset($user->email_verified_at);
         unset($user->created_at);
         unset($user->updated_at);
         unset($user->deleted_at);

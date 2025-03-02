@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OtpMail;
+use App\Models\AuthToken;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -28,6 +32,20 @@ class UserController extends Controller
             $request['password'] = Hash::make($request->password);
 
             $user = User::create($request->all());
+
+            $token = AuthToken::create([
+                'user_id' => $user->id,
+                'otp_code' => rand(100000, 999999),
+                'expired_at' => Date::now()->addMinutes(5)
+            ]);
+
+            $data = [
+                'name' => $user->name,
+                'username' => $user->username,
+                'otp' => $token->otp_code
+            ];
+
+            Mail::to($user->email)->send(new OtpMail($data));
 
             return response(['data' => $user]);
         } catch (\Exception $e) {
