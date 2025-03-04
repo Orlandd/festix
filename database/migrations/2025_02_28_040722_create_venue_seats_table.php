@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('venue_seats', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('seat_row');
-            $table->integer('seat_number');
-            $table->text('note')->nullable();
-            $table->uuid('venue_id');
-            $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        // Schema::create('venue_seats', function (Blueprint $table) {
+        //     $table->uuid('id')->primary();
+        //     $table->string('seat_row');
+        //     $table->integer('seat_number');
+        //     $table->text('note')->nullable();
+        //     $table->uuid('venue_id');
+        //     $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
     }
 
     /**

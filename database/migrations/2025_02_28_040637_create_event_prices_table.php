@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('event_prices', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->decimal('price', 10, 2);
+            $table->integer('total_seat');
             $table->uuid('event_id');
-            $table->uuid('seat_category_id')->nullable();
+            $table->uuid('seat_category_id');
             $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('seat_category_id')->references('id')->on('seat_categories')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('seat_category_id')->references('id')->on('seat_categories')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -15,11 +15,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('code')->unique();
             $table->string('status');
+            $table->string('seat_number');
             $table->timestamp('purchased_at');
-            $table->uuid('event_seat_id')->nullable();
-            $table->uuid('order_id')->nullable();
-            $table->foreign('event_seat_id')->references('id')->on('event_seats')->onUpdate('cascade')->onDelete('set null');
-            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');
+            $table->uuid('payment_id')->nullable();
+            $table->uuid('user_id')->nullable();
+            $table->uuid('event_price_id')->nullable();;
+            $table->foreign('payment_id')->references('id')->on('payments')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('event_price_id')->references('id')->on('event_prices')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });

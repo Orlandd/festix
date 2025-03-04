@@ -16,9 +16,13 @@ return new class extends Migration
             $table->timestamp('date');
             $table->string('method');
             $table->string('status');
-            $table->decimal('amount', 10, 2);
-            $table->uuid('order_id')->nullable();
-            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');
+            $table->decimal('amount_ticket', 10, 2);
+            $table->string('total_payment');
+            $table->string('price');
+            $table->uuid('event_price_id')->nullable();
+            $table->uuid('user_id')->nullable();
+            $table->foreign('event_price_id')->references('id')->on('event_prices')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });
