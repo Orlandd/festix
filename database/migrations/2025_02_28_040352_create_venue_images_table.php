@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->text('link');
             $table->uuid('venue_id');
-            $table->foreign('venue_id')->references('id')->on('venues');
+            $table->foreign('venue_id')->references('id')->on('venues')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

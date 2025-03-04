@@ -15,10 +15,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->decimal('price', 10, 2);
             $table->uuid('event_id');
-            $table->uuid('seat_category_id');
-            $table->foreign('event_id')->references('id')->on('events');
-            $table->foreign('seat_category_id')->references('id')->on('seat_categories');
+            $table->uuid('seat_category_id')->nullable();
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('seat_category_id')->references('id')->on('seat_categories')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

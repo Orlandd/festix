@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('status');
             $table->timestamp('purchased_at');
-            $table->uuid('event_seat_id');
-            $table->uuid('order_id');
-            $table->foreign('event_seat_id')->references('id')->on('event_seats');
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->uuid('event_seat_id')->nullable();
+            $table->uuid('order_id')->nullable();
+            $table->foreign('event_seat_id')->references('id')->on('event_seats')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

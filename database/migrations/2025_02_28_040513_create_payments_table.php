@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('method');
             $table->string('status');
             $table->decimal('amount', 10, 2);
-            $table->uuid('order_id');
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->uuid('order_id')->nullable();
+            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

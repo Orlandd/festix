@@ -53,4 +53,37 @@ class UserController extends Controller
             return response(['error' => 'User creation failed'], 500);
         }
     }
+
+    public function newPassword(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'userId' => ['required'],
+                'password' => ['required', 'max:255'],
+            ]);
+
+            Log::info('OTP received:', [
+                'userId' => $request->userId,
+                'password' => $request->password
+            ]);
+
+            $user = User::where('id', $request->userId)->first();
+
+            Log::info('OTP received:', [
+                'user' => $user,
+            ]);
+            if (!$user) {
+                return response(['error' => 'User not found'], 404);
+            }
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            return response(['data' => $user]);
+        } catch (\Exception $e) {
+            Log::error('User creation failed', ['error' => $e->getMessage()]);
+            return response(['error' => 'User creation failed'], 500);
+        }
+    }
 }

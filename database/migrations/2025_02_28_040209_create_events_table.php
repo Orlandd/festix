@@ -17,9 +17,10 @@ return new class extends Migration
             $table->timestamp('time');
             $table->date('date');
             $table->text('description')->nullable();
-            $table->uuid('venue_id');
-            $table->foreign('venue_id')->references('id')->on('venues');
+            $table->uuid('venue_id')->nullable();
+            $table->foreign('venue_id')->references('id')->on('venues')->onUpdates('cascade')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

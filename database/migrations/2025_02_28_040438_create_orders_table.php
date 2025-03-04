@@ -16,9 +16,10 @@ return new class extends Migration
             $table->timestamp('date');
             $table->decimal('total', 10, 2);
             $table->string('status');
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->uuid('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

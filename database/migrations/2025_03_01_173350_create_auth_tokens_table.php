@@ -16,8 +16,9 @@ return new class extends Migration
             $table->integer('otp_code');
             $table->dateTime('expired_at');
             $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

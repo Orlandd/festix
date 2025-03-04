@@ -32,7 +32,7 @@ class OtpMail extends Mailable
             replyTo: [
                 new Address('alvenorlando@gmail.com', 'FESTIX'),
             ],
-            subject: 'Otp Mail',
+            subject: 'Code OTP [FESTIX]',
         );
     }
 

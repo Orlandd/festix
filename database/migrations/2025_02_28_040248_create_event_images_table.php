@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->text('link');
             $table->uuid('event_id');
-            $table->foreign('event_id')->references('id')->on('events');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

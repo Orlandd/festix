@@ -16,10 +16,11 @@ return new class extends Migration
             $table->uuid('seat_category_id');
             $table->uuid('venue_seat_id');
             $table->uuid('event_id');
-            $table->foreign('seat_category_id')->references('id')->on('seat_categories');
-            $table->foreign('venue_seat_id')->references('id')->on('venue_seats');
-            $table->foreign('event_id')->references('id')->on('events');
+            $table->foreign('seat_category_id')->references('id')->on('seat_categories')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('venue_seat_id')->references('id')->on('venue_seats')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
