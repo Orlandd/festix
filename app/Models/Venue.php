@@ -14,6 +14,9 @@ class Venue extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    protected $fillable = ['id', 'name', 'address', 'capacity'];
+
+
     protected static function boot()
     {
         parent::boot();
@@ -22,5 +25,10 @@ class Venue extends Model
         static::creating(function ($model) {
             $model->id = Str::uuid();
         });
+    }
+
+    public function venueImage()
+    {
+        return $this->hasMany(VenueImage::class);
     }
 }

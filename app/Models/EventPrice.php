@@ -14,6 +14,7 @@ class EventPrice extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $fillable = ['id', 'event_id', 'total_seat', 'price', 'seat_category_id'];
 
     protected static function boot()
     {

@@ -5,6 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Venue;
 use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
+use App\Models\VenueImage;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class VenueController extends Controller
 {
@@ -13,7 +20,19 @@ class VenueController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $data = Venue::all();
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**
@@ -27,17 +46,90 @@ class VenueController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVenueRequest $request)
+    public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'name' => ['required'],
+                'address' => ['required', 'max:255'],
+                'capacity' => ['required', 'integer'],
+                'image_file' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
+            ]);
+
+            // Buat UUID untuk venue
+            $venueId = Str::uuid()->toString();
+
+            $venue = Venue::create([
+                'id' => $venueId,
+                'name' => $request->name,
+                'address' => $request->address,
+                'capacity' => $request->capacity,
+            ]);
+
+            $image = [
+                'id' => Str::uuid()->toString(), // UUID untuk tabel venue_images
+                'venue_id' => $venue->id, // Pastikan venue_id sesuai dengan venue yang baru dibuat
+            ];
+
+            if ($request->file('image_file')) {
+                $file = $request->file('image_file');
+                $filename = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $extension;
+
+                // Simpan file ke storage public
+                Storage::disk('public')->putFileAs('venue', $file, $newName);
+
+                // Simpan nama file dan link di database
+                $image['name'] = $newName;
+                $image['link'] = Storage::url('venue/' . $newName);
+
+                $venueImage = VenueImage::create($image);
+            }
+
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'venue' => $venue,
+                    'image' => $venueImage
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Venue $venue)
+    public function show($id)
     {
-        //
+        try {
+            $data = Venue::find($id);
+
+            if (!$data) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**
@@ -51,16 +143,62 @@ class VenueController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVenueRequest $request, Venue $venue)
+    public function update($id, Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'name' => ['required'],
+                'address' => ['required', 'max:255'],
+                'capacity' => ['required', 'integer'],
+            ]);
+
+            $data = Venue::find($id);
+
+            if (!$data) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found'
+                ], 404);
+            }
+
+            $data->update($request->all());
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Venue $venue)
+    public function destroy($id)
     {
-        //
+        try {
+            $data = Venue::find($id);
+            if (!$data) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found'
+                ], 404);
+            }
+            $data->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data deleted'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 }

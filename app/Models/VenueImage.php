@@ -23,4 +23,16 @@ class VenueImage extends Model
             $model->id = Str::uuid();
         });
     }
+
+    protected $fillable = [
+        'id',
+        'venue_id',
+        'name',
+        'link'
+    ];
+
+    public function venue()
+    {
+        return $this->belongsTo(Venue::class, 'venue_id');
+    }
 }

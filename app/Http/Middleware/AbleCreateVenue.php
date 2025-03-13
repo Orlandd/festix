@@ -18,7 +18,7 @@ class AbleCreateVenue
     {
         $user = Auth::user();
 
-        if ($user->role && !in_array($user->role->name, ['superadmin', 'manager'])) {
+        if ($user->role && !in_array($user->role->name, ['superadmin', 'admin', 'manager'])) {
             return response('You are not allowed to create', 403);
         }
 

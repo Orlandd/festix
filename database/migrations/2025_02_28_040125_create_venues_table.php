@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->text('address');
+            $table->text('capacity');
             $table->timestamps();
             $table->softDeletes();
         });

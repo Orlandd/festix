@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'AbleCreateEvent' => \App\Http\Middleware\AbleCreateEvent::class,
+            'AbleCreateVenue' => \App\Http\Middleware\AbleCreateVenue::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
