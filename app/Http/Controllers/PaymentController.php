@@ -6,6 +6,8 @@ use App\Models\Payment;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Event;
+use App\Models\EventPrice;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
@@ -136,13 +138,52 @@ class PaymentController extends Controller
     public function success(Request $request)
     {
         try {
-            $payment = Payment::find($request->paymentId);
+
+            $data = [
+                'paymentId' => $request->paymentId,
+            ];
+
+            $payment = Payment::find($data['paymentId']);
             $payment->status = 'success';
             $payment->save();
 
+            $eventPrice = EventPrice::with('seatCategory')->where('id', $payment->event_price_id)->first();
+
+            // $test = Ticket::with('eventPrice')->get();
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => $eventPrice->seatCategory,
+            // ]);
+
+            $tickets = Ticket::with('eventPrice')
+                ->whereHas('eventPrice', function ($query) use ($eventPrice) {
+                    $query->where('event_id', optional($eventPrice)->event_id);
+                })
+                ->get();
+
+            $ticketCount = $tickets->count();
+
+            for ($i = 0; $i < $payment->amount_ticket; $i++) {
+                if ($ticketCount == 0) {
+                    $seat_number = "1";
+                } else {
+                    $seat_number = $ticketCount++;
+                }
+                $ticket = new Ticket();
+                $ticket->id = Str::uuid()->toString();
+                $ticket->code = hash('sha256', $eventPrice->id . $seat_number);
+                $ticket->seat_number = $seat_number;
+                $ticket->status = $eventPrice->seatCategory->name;
+                $ticket->purchased_at = $payment->date;
+                $ticket->user_id = $payment->user_id;
+                $ticket->event_price_id = $eventPrice->id;
+                $ticket->save();
+            }
+
             return response()->json([
                 'status' => 'success',
-                'data' => $payment,
+                'data' => $ticket,
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
