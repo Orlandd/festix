@@ -14,6 +14,8 @@ class Payment extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    protected $fillable = ['id', 'date', 'method', 'status', 'amount_ticket', 'price', 'total_payment', 'event_price_id', 'user_id'];
+
     protected static function boot()
     {
         parent::boot();

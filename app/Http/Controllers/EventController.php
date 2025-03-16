@@ -133,10 +133,51 @@ class EventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Event $event)
+    public function show($id)
     {
-        //
+        try {
+            $event = Event::with(['vanue', 'eventPrice.tickets'])->find($id);
+            if (!$event) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found'
+                ], 404);
+            }
+
+            $eventPrice = $event->eventPrice;
+            $vanue = $event->vanue;
+            $totalSeatsRemaining = $event->eventPrice->map(function ($price) {
+                $totalSeat = $price->total_seat;
+                $ticketSold = $price->tickets->count(); // Menghitung jumlah tiket yang terjual
+                return [
+                    'event_price_id' => $price->id,
+                    'name' => $price->seatCategory->name,
+                    'price' => $price->price,
+                    'total_seat' => $totalSeat,
+                    'ticket_sold' => $ticketSold,
+                    'remaining_seat' => max(0, $totalSeat - $ticketSold) // Pastikan tidak negatif
+                ];
+            });
+
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'event' => $event,
+                    'vanue' => $vanue,
+                    'event_price' => $eventPrice,
+                    'total_seats_remaining' => $totalSeatsRemaining
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
+
 
     /**
      * Show the form for editing the specified resource.

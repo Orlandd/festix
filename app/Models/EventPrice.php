@@ -25,4 +25,19 @@ class EventPrice extends Model
             $model->id = Str::uuid();
         });
     }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function seatCategory()
+    {
+        return $this->belongsTo(SeatCategory::class);
+    }
 }

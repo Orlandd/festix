@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthTokenController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SeatCategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenueController;
@@ -52,4 +53,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/events/{id}/seats', [EventController::class, 'showSeat'])->middleware([]);
     Route::get('/events/{id}/seats/{seat_id}', [EventController::class, 'showSeat'])->middleware([]);
     Route::post('/events/create', [EventController::class, 'store'])->middleware([]);
+
+    // payment
+    Route::post('/payments/create', [PaymentController::class, 'store'])->middleware([]);
+    Route::post('/payments/confirm', [PaymentController::class, 'confirm'])->middleware([]);
+    Route::post('/payments/create/success', [PaymentController::class, 'success'])->middleware([]);
 });
