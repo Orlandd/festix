@@ -93,6 +93,23 @@ class PaymentController extends Controller
                 'user_id' => Auth::user()->id,
             ];
 
+            // cek kuota ticket
+            $eventPrice = EventPrice::with('seatCategory')->where('id', $data['event_price_id'])->first();
+
+            $tickets = Ticket::with('eventPrice')
+                ->whereHas('eventPrice', function ($query) use ($eventPrice) {
+                    $query->where('event_id', optional($eventPrice)->event_id);
+                })
+                ->get();
+
+            $ticketCount = $tickets->count();
+
+            if ($ticketCount + intval($data['amount_ticket']) >= $eventPrice->total_seat) {
+                return response()->json([
+                    'status' => 'failed',
+                    'data' => "Ticket Sold",
+                ]);
+            }
 
 
             $payment = Payment::create($data);
@@ -144,6 +161,14 @@ class PaymentController extends Controller
             ];
 
             $payment = Payment::find($data['paymentId']);
+
+            if ($payment->status == 'success') {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Payment has been confirm!',
+                ]);
+            }
+
             $payment->status = 'success';
             $payment->save();
 
@@ -164,6 +189,13 @@ class PaymentController extends Controller
 
             $ticketCount = $tickets->count();
 
+            // if ($ticketCount == $eventPrice->total_seat) {
+            //     return response()->json([
+            //         'status' => 'failed',
+            //         'data' => "Ticket Sold",
+            //     ]);
+            // }
+
             for ($i = 0; $i < $payment->amount_ticket; $i++) {
                 if ($ticketCount == 0) {
                     $seat_number = "1";
@@ -172,11 +204,12 @@ class PaymentController extends Controller
                 }
                 $ticket = new Ticket();
                 $ticket->id = Str::uuid()->toString();
-                $ticket->code = hash('sha256', $eventPrice->id . $seat_number);
+                $ticket->code = $eventPrice->seatCategory->name . time() . rand(100, 999);
                 $ticket->seat_number = $seat_number;
-                $ticket->status = $eventPrice->seatCategory->name;
+                $ticket->status = true;
                 $ticket->purchased_at = $payment->date;
                 $ticket->user_id = $payment->user_id;
+                $ticket->payment_id = $payment->id;
                 $ticket->event_price_id = $eventPrice->id;
                 $ticket->save();
             }

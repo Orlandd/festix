@@ -5,9 +5,58 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
+
+    public function history()
+    {
+        try {
+            $tickets = Ticket::with(['eventPrice.event'])->where('user_id', Auth::id())->get();
+
+            return response()->json([
+                'status' => "success",
+                'data' => $tickets,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verify(Request $request)
+    {
+        try {
+            $ticket = Ticket::where('code', $request->code)->first();
+            if ($ticket->status == true) {
+                $ticket->status = false;
+                $ticket->save();
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ticket already verified',
+                ], 400);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ticket verified',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -35,9 +84,24 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ticket $ticket)
+    public function show($id)
     {
-        //
+        try {
+            $tickets = Ticket::with(['eventPrice.event', 'eventPrice.seatCategory', 'eventPrice.event.vanue'])
+                ->where('user_id', Auth::id())
+                ->where('id', $id)
+                ->first();
+            return response()->json([
+                'status' => "success",
+                'data' => $tickets,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**

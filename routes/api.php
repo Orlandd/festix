@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SeatCategoryController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenueController;
 use App\Models\AuthToken;
@@ -26,6 +27,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [UserController::class, 'register']);
     Route::post('/{user_id}/otp-validation', [AuthTokenController::class, 'index']);
     Route::post('/get-token', [AuthTokenController::class, 'token']);
+
+    // admin
+
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -58,4 +62,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/payments/create', [PaymentController::class, 'store'])->middleware([]);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm'])->middleware([]);
     Route::post('/payments/create/success', [PaymentController::class, 'success'])->middleware([]);
+
+    // History Ticket
+    Route::get('/history-tickets', [TicketController::class, 'history'])->middleware([]);
+    Route::get('/history-tickets/{id}', [TicketController::class, 'show'])->middleware([]);
+
+    // verify ticket
+    Route::post('/verify-ticket', [TicketController::class, 'verify'])->middleware([]);
 });
