@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class VenueImage extends Model
@@ -13,6 +14,8 @@ class VenueImage extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+
+    
 
     protected static function boot()
     {

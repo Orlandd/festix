@@ -248,7 +248,27 @@ class PaymentController extends Controller
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        //
+        try {
+            $payment->update([
+                'method' => $request->method ?? $payment->method,
+                'status' => $request->status ?? $payment->status,
+                'amount_ticket' => $request->amount_ticket ?? $payment->amount_ticket,
+                'price' => $request->price ?? $payment->price,
+                'total_payment' => $request->total_payment ?? $payment->total_payment,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success',
+                'data' => $payment
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 
     /**
@@ -256,6 +276,19 @@ class PaymentController extends Controller
      */
     public function destroy(Payment $payment)
     {
-        //
+        try {
+            $payment->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'successy'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 }

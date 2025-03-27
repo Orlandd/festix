@@ -53,7 +53,17 @@ class EventPriceController extends Controller
      */
     public function update(UpdateEventPriceRequest $request, EventPrice $eventPrice)
     {
-        //
+        $eventPrice->update([
+            'price' => $request->price,
+            'total_seat' => $request->total_seat,
+            'event_id' => $request->event_id,
+            'seat_category_id' => $request->seat_category_id,
+        ]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $eventPrice
+        ]);
     }
 
     /**
@@ -61,6 +71,8 @@ class EventPriceController extends Controller
      */
     public function destroy(EventPrice $eventPrice)
     {
-        //
+        return response()->json([
+            'message' => 'deleted'
+        ]);
     }
 }

@@ -4,16 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Ticket extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketFactory> */
-    use HasFactory;
+    // Buatan Billie 15/03/2025
+    use HasFactory, SoftDeletes;
 
     public $incrementing = false;
     protected $keyType = 'string';
 
+    // Buatan Billie 15/03/2025
+    protected $fillable = [
+        'code', 'status', 'seat_number', 'purchased_at',
+        'payment_id', 'user_id', 'event_price_id'
+    ];
+    //-------------------------------------
+    
     protected static function boot()
     {
         parent::boot();

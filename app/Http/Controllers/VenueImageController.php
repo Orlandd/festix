@@ -53,7 +53,21 @@ class VenueImageController extends Controller
      */
     public function update(UpdateVenueImageRequest $request, VenueImage $venueImage)
     {
-        //
+        try {
+            $venueImage->update($request->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success',
+                'data' => $venueImage
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Faile'
+            ], 500);
+        }
     }
 
     /**
@@ -61,6 +75,19 @@ class VenueImageController extends Controller
      */
     public function destroy(VenueImage $venueImage)
     {
-        //
+        try {
+            $venueImage->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success'
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 }

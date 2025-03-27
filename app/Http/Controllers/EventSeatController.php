@@ -53,7 +53,16 @@ class EventSeatController extends Controller
      */
     public function update(UpdateEventSeatRequest $request, EventSeat $eventSeat)
     {
-        //
+        $eventSeat->update([
+            'seat_category_id' => $request->seat_category_id,
+            'venue_seat_id' => $request->venue_seat_id,
+            'event_id' => $request->event_id,
+        ]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $eventSeat
+        ]);
     }
 
     /**
@@ -61,6 +70,10 @@ class EventSeatController extends Controller
      */
     public function destroy(EventSeat $eventSeat)
     {
-        //
+        $eventSeat->delete();
+
+        return response()->json([
+            'message' => 'deleted'
+        ]);
     }
 }

@@ -117,7 +117,21 @@ class TicketController extends Controller
      */
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        //
+        try {
+            $ticket->update($request->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success',
+                'data' => $ticket
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 
     /**
@@ -125,6 +139,19 @@ class TicketController extends Controller
      */
     public function destroy(Ticket $ticket)
     {
-        //
+        try {
+            $ticket->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success'
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 }

@@ -53,7 +53,23 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        //
+        try {
+            $role->update([
+                'name' => $request->name ?? $role->name,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success',
+                'data' => $role
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 
     /**
@@ -61,6 +77,19 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        //
+        try {
+            $role->delete(); // Soft delete
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success'
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 }

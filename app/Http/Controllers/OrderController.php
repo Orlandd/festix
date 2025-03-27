@@ -53,7 +53,17 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        //
+        $order->update([
+            'date' => $request->date,
+            'total' => $request->total,
+            'status' => $request->status,
+            'user_id' => $request->user_id
+        ]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $order
+        ]);
     }
 
     /**
@@ -61,6 +71,10 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        //
+        $order->delete();
+
+    return response()->json([
+        'message' => 'deleted'
+    ]);
     }
 }

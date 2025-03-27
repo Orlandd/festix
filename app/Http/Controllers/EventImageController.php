@@ -53,7 +53,15 @@ class EventImageController extends Controller
      */
     public function update(UpdateEventImageRequest $request, EventImage $eventImage)
     {
-        //
+        $eventImage->update([
+            'name' => $request->name,
+            'link' => $request->link,
+        ]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $eventImage
+        ]);
     }
 
     /**
@@ -61,6 +69,8 @@ class EventImageController extends Controller
      */
     public function destroy(EventImage $eventImage)
     {
-        //
+        return response()->json([
+            'message' => 'deleted'
+        ]);
     }
 }

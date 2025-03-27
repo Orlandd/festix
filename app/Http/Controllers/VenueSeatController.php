@@ -53,7 +53,21 @@ class VanueSeatController extends Controller
      */
     public function update(UpdateVanueSeatRequest $request, VanueSeat $vanueSeat)
     {
-        //
+        try {
+            $venueSeat->update($request->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success',
+                'data' => $venueSeat
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 
     /**
@@ -61,6 +75,19 @@ class VanueSeatController extends Controller
      */
     public function destroy(VanueSeat $vanueSeat)
     {
-        //
+        try {
+            $venueSeat->delete(); // Soft delete
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'success'
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed'
+            ], 500);
+        }
     }
 }
