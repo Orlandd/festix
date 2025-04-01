@@ -22,7 +22,16 @@ class EventController extends Controller
     public function index()
     {
         try {
-            $data = Event::with(['vanue', 'eventPrice'])->get();
+            $data = Event::with([
+                'vanue',
+                'eventPrice' => function ($query) {
+                    $query->with(['seatCategory'])->withCount('tickets');
+                }
+            ])
+                ->withMin('eventPrice', 'price') // Menambahkan harga tiket paling kecil dalam setiap event
+                ->orderBy('created_at', 'desc') // Mengurutkan berdasarkan yang terakhir ditambahkan
+                ->get();
+
             return response()->json([
                 'status' => 'success',
                 'data' => $data
@@ -35,6 +44,7 @@ class EventController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Show the form for creating a new resource.

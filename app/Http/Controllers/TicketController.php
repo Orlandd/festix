@@ -15,7 +15,10 @@ class TicketController extends Controller
     public function history()
     {
         try {
-            $tickets = Ticket::with(['eventPrice.event'])->where('user_id', Auth::id())->get();
+            $tickets = Ticket::with(['eventPrice.event'])
+                ->where('user_id', Auth::id())
+                ->orderByRaw('status DESC, created_at DESC') // Status 1 dahulu, lalu status 0, dan urutkan berdasarkan created_at terbaru
+                ->get();
 
             return response()->json([
                 'status' => "success",
@@ -29,6 +32,7 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
 
     public function verify(Request $request)
     {
@@ -126,7 +130,7 @@ class TicketController extends Controller
                 'data' => $ticket
             ]);
         } catch (\Throwable $th) {
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed'
@@ -147,7 +151,7 @@ class TicketController extends Controller
                 'message' => 'success'
             ]);
         } catch (\Throwable $th) {
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed'

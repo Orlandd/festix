@@ -21,7 +21,7 @@ class VenueController extends Controller
     public function index()
     {
         try {
-            $data = Venue::all();
+            $data = Venue::with(['venueImage'])->get();
             return response()->json([
                 'status' => 'success',
                 'data' => $data
