@@ -43,4 +43,9 @@ class Event extends Model
     {
         return $this->hasMany(EventPrice::class);
     }
+
+    public function eventImage()
+    {
+        return $this->hasMany(EventImage::class);
+    }
 }

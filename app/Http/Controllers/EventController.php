@@ -24,6 +24,7 @@ class EventController extends Controller
         try {
             $data = Event::with([
                 'vanue',
+                'eventImage',
                 'eventPrice' => function ($query) {
                     $query->with(['seatCategory'])->withCount('tickets');
                 }

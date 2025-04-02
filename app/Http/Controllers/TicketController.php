@@ -15,7 +15,7 @@ class TicketController extends Controller
     public function history()
     {
         try {
-            $tickets = Ticket::with(['eventPrice.event'])
+            $tickets = Ticket::with(['eventPrice.event.eventImage'])
                 ->where('user_id', Auth::id())
                 ->orderByRaw('status DESC, created_at DESC') // Status 1 dahulu, lalu status 0, dan urutkan berdasarkan created_at terbaru
                 ->get();
@@ -91,7 +91,7 @@ class TicketController extends Controller
     public function show($id)
     {
         try {
-            $tickets = Ticket::with(['eventPrice.event', 'eventPrice.seatCategory', 'eventPrice.event.vanue'])
+            $tickets = Ticket::with(['eventPrice.event.eventImage', 'eventPrice.seatCategory', 'eventPrice.event.vanue'])
                 ->where('user_id', Auth::id())
                 ->where('id', $id)
                 ->first();
