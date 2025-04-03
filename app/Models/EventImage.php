@@ -13,6 +13,7 @@ class EventImage extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $fillable = ['id', 'event_id', 'name', 'link'];
 
     protected static function boot()
     {

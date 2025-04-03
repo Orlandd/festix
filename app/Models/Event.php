@@ -20,6 +20,7 @@ class Event extends Model
         'name',
         'date',
         'time',
+        'seat_image',
         'description',
         'venue_id',
     ];

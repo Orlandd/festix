@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/venues/{id}', [VenueController::class, 'show'])->middleware([]);
 
     // Seat Category
+    Route::get('/seat-categories', [SeatCategoryController::class, 'index'])->middleware([]);
     Route::post('/seat-categories/create', [SeatCategoryController::class, 'store'])->middleware(['AbleCreateVenue']);
 
     // Event

@@ -67,12 +67,25 @@ class EventController extends Controller
                 'time' => ['required',],
                 'description' => ['required', 'string'],
                 'image_file.*' => ['nullable', 'mimes:jpg,png'], // Bisa menerima banyak file
+                'cover_image' => ['nullable', 'mimes:jpg,png'], // Bisa menerima banyak file
+                'seat_map' => ['nullable', 'mimes:jpg,png'], // Bisa menerima banyak file
                 'venue_id' => ['required'],
                 'seats' => ['nullable', 'array'], // Pastikan 'seats' adalah array
                 'seats.*.price' => ['required', 'numeric'],
                 'seats.*.total_seat' => ['required', 'integer'],
                 'seats.*.category_seat' => ['required']
             ]);
+
+            if ($request->hasFile('seat_map')) {
+                $file = $request->file('seat_map');
+                $filename = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '_seat' . '.' . $extension;
+
+                // Simpan file ke storage public
+                Storage::disk('public')->putFileAs('event', $file, $newName);
+            }
+
 
             // Simpan event
             $eventId = Str::uuid()->toString();
@@ -81,32 +94,52 @@ class EventController extends Controller
                 'name' => $request->name,
                 'date' => $request->date,
                 'time' => $request->time,
+                'seat_image' => $request->hasFile('seat_map') ? Storage::url('event/' . $newName) : null,
                 'description' => $request->description,
                 'venue_id' => $request->venue_id
             ]);
 
             // Simpan gambar jika ada
-            if ($request->hasFile('image_file')) {
-                foreach ($request->file('image_file') as $file) {
-                    $image = [
-                        'id' => Str::uuid()->toString(), // UUID untuk tabel venue_images
-                        'event_id' => $event->id, // Pastikan venue_id sesuai dengan venue yang baru dibuat
-                    ];
+            // if ($request->hasFile('image_file')) {
+            //     foreach ($request->file('image_file') as $file) {
+            //         $image = [
+            //             'id' => Str::uuid()->toString(), // UUID untuk tabel venue_images
+            //             'event_id' => $event->id, // Pastikan venue_id sesuai dengan venue yang baru dibuat
+            //         ];
 
-                    $file = $request->file('image_file');
-                    $filename = $file->getClientOriginalName();
-                    $extension = $file->getClientOriginalExtension();
-                    $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $extension;
+            //         $file = $request->file('image_file');
+            //         $filename = $file->getClientOriginalName();
+            //         $extension = $file->getClientOriginalExtension();
+            //         $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $extension;
 
-                    // Simpan file ke storage public
-                    Storage::disk('public')->putFileAs('venue', $file, $newName);
+            //         // Simpan file ke storage public
+            //         Storage::disk('public')->putFileAs('venue', $file, $newName);
 
-                    // Simpan nama file dan link di database
-                    $image['name'] = $newName;
-                    $image['link'] = Storage::url('event/' . $newName);
+            //         // Simpan nama file dan link di database
+            //         $image['name'] = $newName;
+            //         $image['link'] = Storage::url('event/' . $newName);
 
-                    $venueImage = EventImage::create($image);
-                }
+            //         $venueImage = EventImage::create($image);
+            //     }
+            // }
+
+
+            if ($request->hasFile('cover_image')) {
+                $file = $request->file('cover_image');
+                $filename = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $extension;
+
+                // Simpan file ke storage public
+                Storage::disk('public')->putFileAs('event', $file, $newName);
+
+                // Simpan nama file dan link di database
+                EventImage::create([
+                    'id' => Str::uuid()->toString(),
+                    'event_id' => $event->id,
+                    'name' => $newName,
+                    'link' => Storage::url('event/' . $newName),
+                ]);
             }
 
             // Simpan kursi jika ada
@@ -134,7 +167,8 @@ class EventController extends Controller
             Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $th->getMessage(),
+                'data' => $request
             ], 500);
         }
     }
@@ -147,7 +181,7 @@ class EventController extends Controller
     public function show($id)
     {
         try {
-            $event = Event::with(['vanue', 'eventPrice.tickets'])->find($id);
+            $event = Event::with(['vanue', 'eventPrice.tickets', 'eventImage'])->find($id);
             if (!$event) {
                 return response()->json([
                     'status' => 'error',
