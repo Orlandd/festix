@@ -32,6 +32,11 @@ Route::prefix('auth')->group(function () {
 
 });
 
+Route::get('/venues', [VenueController::class, 'index'])->middleware([]);
+Route::get('/events', [EventController::class, 'index'])->middleware([]);
+Route::get('/events/{id}', [EventController::class, 'show'])->middleware([]);
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/user', [UserController::class, 'store'])->middleware(['AbleCreateUser']);
@@ -45,7 +50,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/venues/create', [VenueController::class, 'store'])->middleware(['AbleCreateVenue']);
     Route::patch('/venues/update/{id}', [VenueController::class, 'update'])->middleware(['AbleCreateVenue']);
     Route::delete('/venues/delete/{id}', [VenueController::class, 'destroy'])->middleware(['AbleCreateVenue']);
-    Route::get('/venues', [VenueController::class, 'index'])->middleware([]);
     Route::get('/venues/{id}', [VenueController::class, 'show'])->middleware([]);
 
     // Seat Category
@@ -53,8 +57,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/seat-categories/create', [SeatCategoryController::class, 'store'])->middleware(['AbleCreateVenue']);
 
     // Event
-    Route::get('/events', [EventController::class, 'index'])->middleware([]);
-    Route::get('/events/{id}', [EventController::class, 'show'])->middleware([]);
     Route::get('/events/{id}/seats', [EventController::class, 'showSeat'])->middleware([]);
     Route::get('/events/{id}/seats/{seat_id}', [EventController::class, 'showSeat'])->middleware([]);
     Route::post('/events/create', [EventController::class, 'store'])->middleware([]);
