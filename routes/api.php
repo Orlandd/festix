@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SeatCategoryController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
@@ -39,8 +40,10 @@ Route::get('/events/{id}', [EventController::class, 'show'])->middleware([]);
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post('/user', [UserController::class, 'store'])->middleware(['AbleCreateUser']);
-
+    Route::post('/admin/users/create', [UserController::class, 'store'])->middleware([]);
+    Route::get('/admin/users', [UserController::class, 'index'])->middleware([]);
+    Route::delete('/admin/users/delete/{id}', [UserController::class, 'destroy'])->middleware([]);
+    Route::get('/admin/roles', [RoleController::class, 'index'])->middleware([]);
     // event 
     Route::post('/events/create', [EventController::class, 'store'])->middleware(['AbleCreateEvent']);
     Route::post('/events/update/{id}', [EventController::class, 'update'])->middleware(['AbleCreateEvent']);

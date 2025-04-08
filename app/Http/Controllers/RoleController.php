@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
+use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
@@ -13,7 +14,20 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $roles = Role::all();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $roles
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -64,7 +78,7 @@ class RoleController extends Controller
                 'data' => $role
             ]);
         } catch (\Throwable $th) {
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed'
@@ -85,7 +99,7 @@ class RoleController extends Controller
                 'message' => 'success'
             ]);
         } catch (\Throwable $th) {
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed'

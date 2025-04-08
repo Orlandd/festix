@@ -21,7 +21,7 @@ class VenueController extends Controller
     public function index()
     {
         try {
-            $data = Venue::with(['venueImage'])->get();
+            $data = Venue::with(['venueImage'])->latest()->get();
             return response()->json([
                 'status' => 'success',
                 'data' => $data
@@ -53,7 +53,7 @@ class VenueController extends Controller
                 'name' => ['required'],
                 'address' => ['required', 'max:255'],
                 'capacity' => ['required', 'integer'],
-                'image_file' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
+                'image_file' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:10048']
             ]);
 
             // Buat UUID untuk venue

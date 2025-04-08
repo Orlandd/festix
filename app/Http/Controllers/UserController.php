@@ -6,6 +6,7 @@ use App\Mail\OtpMail;
 use App\Models\AuthToken;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
@@ -84,6 +85,79 @@ class UserController extends Controller
         } catch (\Exception $e) {
             Log::error('User creation failed', ['error' => $e->getMessage()]);
             return response(['error' => 'User creation failed'], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => ['required', 'max:255'],
+                'username' => ['required', 'unique:users'],
+                'email' => ['required', 'unique:users'],
+                'password' => ['required', 'max:255'],
+                'role_id' => ['required'],
+            ]);
+
+            $request['id'] = Str::uuid()->toString();
+            $request['password'] = Hash::make($request->password);
+            $request['email_verified_at'] = Carbon::now();
+
+            $user = User::create($request->all());
+
+            return response(['data' => $user]);
+        } catch (\Exception $e) {
+            Log::error('User creation failed', ['error' => $e->getMessage()]);
+            return response([
+                'status' => 'error',
+                'message' => 'User creation failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        try {
+            $users = User::with('role')->get();
+
+            return response([
+                'status' => 'success',
+                'data' => $users
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $user = User::find($id);
+
+            if (!$user) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $user->delete();
+
+            return response([
+                'status' => 'success',
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
         }
     }
 }
