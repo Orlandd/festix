@@ -150,21 +150,50 @@ class VenueController extends Controller
                 'name' => ['required'],
                 'address' => ['required', 'max:255'],
                 'capacity' => ['required', 'integer'],
+                'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
             ]);
 
-            $data = Venue::find($id);
+            $venue = Venue::find($id);
 
-            if (!$data) {
+            if (!$venue) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data not found'
                 ], 404);
             }
 
-            $data->update($request->all());
+            // Update venue data
+            $venue->update($request->only(['name', 'address', 'capacity']));
+
+            // Cek apakah ada gambar baru yang diupload
+            if ($request->hasFile('image_file')) {
+                // Hapus gambar lama jika ada
+                $venueImage = VenueImage::where('venue_id', $venue->id)->first();
+                if ($venueImage) {
+                    // Hapus gambar yang ada di storage
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $venueImage->link));
+                    // Hapus data gambar dari database
+                    $venueImage->delete();
+                }
+
+                // Simpan gambar baru
+                $file = $request->file('image_file');
+                $extension = $file->getClientOriginalExtension();
+                $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $extension;
+                Storage::disk('public')->putFileAs('venue', $file, $newName);
+
+                // Simpan data gambar baru ke database
+                VenueImage::create([
+                    'id' => Str::uuid()->toString(),
+                    'venue_id' => $venue->id,
+                    'name' => $newName,
+                    'link' => Storage::url('venue/' . $newName),
+                ]);
+            }
+
             return response()->json([
                 'status' => 'success',
-                'data' => $data
+                'data' => $venue
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
@@ -181,14 +210,26 @@ class VenueController extends Controller
     public function destroy($id)
     {
         try {
-            $data = Venue::find($id);
-            if (!$data) {
+            $venue = Venue::find($id);
+            if (!$venue) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data not found'
                 ], 404);
             }
-            $data->delete();
+
+            // Hapus gambar terkait jika ada
+            $venueImages = VenueImage::where('venue_id', $venue->id)->get();
+            foreach ($venueImages as $image) {
+                // Hapus gambar dari storage
+                Storage::disk('public')->delete(str_replace('/storage/', '', $image->link));
+                // Hapus data gambar dari database
+                $image->delete();
+            }
+
+            // Hapus venue
+            $venue->delete();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data deleted'

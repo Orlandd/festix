@@ -44,10 +44,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])->middleware([]);
     Route::delete('/admin/users/delete/{id}', [UserController::class, 'destroy'])->middleware([]);
     Route::get('/admin/roles', [RoleController::class, 'index'])->middleware([]);
-    // event 
+    // event
     Route::post('/events/create', [EventController::class, 'store'])->middleware(['AbleCreateEvent']);
-    Route::post('/events/update/{id}', [EventController::class, 'update'])->middleware(['AbleCreateEvent']);
-    Route::post('/events/delete/{id}', [EventController::class, 'destroy'])->middleware(['AbleCreateEvent']);
+    Route::patch('/events/update/{id}', [EventController::class, 'update'])->middleware(['AbleCreateEvent']);
+    Route::delete('/events/delete/{id}', [EventController::class, 'destroy'])->middleware(['AbleCreateEvent']);
 
     // Vanue
     Route::post('/venues/create', [VenueController::class, 'store'])->middleware(['AbleCreateVenue']);

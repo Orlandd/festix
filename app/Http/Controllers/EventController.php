@@ -235,25 +235,78 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, Event $event)
+    public function update(Request $request, $id)
     {
         try {
             $request->validate([
                 'name' => ['required', 'max:100'],
                 'date' => ['required', 'date'],
-                'time' => ['required', 'date_format:H:i'],
+                'time' => ['required'],
                 'description' => ['required', 'string'],
-                'venue_id' => ['required']
+                'venue_id' => ['required'],
+                'cover_image' => ['nullable', 'mimes:jpg,png'],
+                'seat_map' => ['nullable', 'mimes:jpg,png'],
+                'seats' => ['nullable', 'array'],
+                'seats.*.price' => ['required', 'numeric'],
+                'seats.*.total_seat' => ['required', 'integer'],
+                'seats.*.category_seat' => ['required']
             ]);
 
+            $event = Event::findOrFail($id);
+
+            // Hapus gambar lama dari storage jika ada dan digantikan
+            if ($request->hasFile('cover_image')) {
+                $oldImage = EventImage::where('event_id', $event->id)->first();
+                if ($oldImage) {
+                    // Hapus file lama
+                    $oldImagePath = str_replace('/storage/', '', $oldImage->link);
+                    Storage::disk('public')->delete($oldImagePath);
+                    $oldImage->delete(); // Hapus record lama
+                }
+
+                $file = $request->file('cover_image');
+                $newName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+                Storage::disk('public')->putFileAs('event', $file, $newName);
+
+                EventImage::create([
+                    'id' => Str::uuid()->toString(),
+                    'event_id' => $event->id,
+                    'name' => $newName,
+                    'link' => Storage::url('event/' . $newName),
+                ]);
+            }
+
+            if ($request->hasFile('seat_map')) {
+                if ($event->seat_image) {
+                    $oldSeatPath = str_replace('/storage/', '', $event->seat_image);
+                    Storage::disk('public')->delete($oldSeatPath);
+                }
+
+                $seatFile = $request->file('seat_map');
+                $seatNewName = Carbon::now()->timestamp . '_' . Str::slug($request->name) . '_seat.' . $seatFile->getClientOriginalExtension();
+                Storage::disk('public')->putFileAs('event', $seatFile, $seatNewName);
+
+                $event->seat_image = Storage::url('event/' . $seatNewName);
+            }
+
             $event->update($request->only([
-                'name',
-                'date',
-                'time',
-                'description',
-                'venue_id'
+                'name', 'date', 'time', 'description', 'venue_id', 'seat_image'
             ]));
-            $event->save();
+
+            // Update kursi: Hapus semua dan buat ulang
+            EventPrice::where('event_id', $event->id)->delete();
+            if ($request->has('seats')) {
+                foreach ($request->seats as $seat) {
+                    EventPrice::create([
+                        'id' => Str::uuid()->toString(),
+                        'event_id' => $event->id,
+                        'price' => $seat['price'],
+                        'total_seat' => $seat['total_seat'],
+                        'seat_category_id' => $seat['category_seat']
+                    ]);
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
                 'data' => $event
@@ -262,28 +315,51 @@ class EventController extends Controller
             Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $th->getMessage()
             ], 500);
         }
     }
 
+
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Event $event)
+    public function destroy($id)
     {
         try {
+            $event = Event::findOrFail($id);
+
+            // Hapus gambar dari storage
+            $images = EventImage::where('event_id', $event->id)->get();
+            foreach ($images as $image) {
+                $path = str_replace('/storage/', '', $image->link);
+                Storage::disk('public')->delete($path);
+                $image->delete();
+            }
+
+            // Hapus seat image jika ada
+            if ($event->seat_image) {
+                $seatImagePath = str_replace('/storage/', '', $event->seat_image);
+                Storage::disk('public')->delete($seatImagePath);
+            }
+
+            // Hapus harga kursi
+            EventPrice::where('event_id', $event->id)->delete();
+
             $event->delete();
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Data deleted successfully'
+                'message' => 'Event and related data deleted successfully'
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $th->getMessage()
             ], 500);
         }
     }
+
 }
