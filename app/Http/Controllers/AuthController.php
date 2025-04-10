@@ -147,7 +147,8 @@ class AuthController extends Controller
 
     public function me()
     {
-        return response(['data' => Auth::user()]);
+        $user = Auth::user()->load('role'); // load eager loading pada instance user
+        return response(['data' => $user]);
     }
 
     public function logout()

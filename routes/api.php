@@ -42,11 +42,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/admin/users/create', [UserController::class, 'store'])->middleware([]);
     Route::get('/admin/users', [UserController::class, 'index'])->middleware([]);
+    Route::patch('/admin/users', [UserController::class, 'update'])->middleware([]);
     Route::delete('/admin/users/delete/{id}', [UserController::class, 'destroy'])->middleware([]);
     Route::get('/admin/roles', [RoleController::class, 'index'])->middleware([]);
     // event
     Route::post('/events/create', [EventController::class, 'store'])->middleware(['AbleCreateEvent']);
-    Route::patch('/events/update/{id}', [EventController::class, 'update'])->middleware(['AbleCreateEvent']);
+    Route::patch('/events/update/{id}', [EventController::class, 'update'])->middleware([]);
     Route::delete('/events/delete/{id}', [EventController::class, 'destroy'])->middleware(['AbleCreateEvent']);
 
     // Vanue

@@ -199,7 +199,7 @@ class VenueController extends Controller
             Log::error($th->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $th->getMessage()
             ], 500);
         }
     }

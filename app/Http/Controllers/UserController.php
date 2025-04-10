@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -124,6 +125,58 @@ class UserController extends Controller
             return response([
                 'status' => 'success',
                 'data' => $users
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
+    }
+    public function update(Request $request)
+    {
+        try {
+            $user = User::find(Auth::user()->id);
+
+            if ($user->role_id != 1) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            if (!$user) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $request->validate([
+                'password' => ['required', 'max:255'],
+                'newPassword' => ['nullable', 'max:255'],
+            ]);
+
+
+            if (Hash::make($request->password) !== Auth::user()->password) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'Password is incorrect'
+                ], 403);
+            }
+
+            if ($request->newPassword) {
+                $request['newPassword'] = Hash::make($request->newPassword);
+                $request['password'] = $request['newPassword'];
+                unset($request['newPassword']);
+            }
+
+            $user->update($request->all());
+
+            return response([
+                'status' => 'success',
+                'data' => $user
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
