@@ -22,7 +22,20 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $payments = Payment::with('eventPrice.event.eventImage')->where('user_id', Auth::user()->id)->latest()->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $payments
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**

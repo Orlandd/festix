@@ -26,4 +26,13 @@ class Payment extends Model
             $model->id = Str::uuid();
         });
     }
+
+    public function eventPrice()
+    {
+        return $this->belongsTo(EventPrice::class, 'event_price_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -66,6 +66,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/events/create', [EventController::class, 'store'])->middleware([]);
 
     // payment
+    Route::get('/payments', [PaymentController::class, 'index'])->middleware([]);
+    Route::get('/payments/{id}', [PaymentController::class, 'show'])->middleware([]);
     Route::post('/payments/create', [PaymentController::class, 'store'])->middleware([]);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm'])->middleware([]);
     Route::post('/payments/create/success', [PaymentController::class, 'success'])->middleware([]);
