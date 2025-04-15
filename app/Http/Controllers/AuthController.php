@@ -48,7 +48,7 @@ class AuthController extends Controller
 
             return response(['data' => $user]);
         } catch (ValidationException $e) {
-            Log::error('Validation Error: ' . $e->getMessage(), ['request' => $request->all()]);
+            Log::error('error: ' . $e->getMessage());
             return response(['errors' => $e->errors()], 422);
         } catch (Exception $e) {
             Log::error('Authentication Error: ' . $e->getMessage(), ['exception' => $e]);

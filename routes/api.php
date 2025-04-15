@@ -68,9 +68,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // payment
     Route::get('/payments', [PaymentController::class, 'index'])->middleware([]);
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->middleware([]);
-    Route::post('/payments/create', [PaymentController::class, 'store'])->middleware([]);
+    Route::post('/payments/create', [PaymentController::class, 'store2'])->middleware([]);
+    Route::post('/payments/create/manual', [PaymentController::class, 'manual2'])->middleware([]);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm'])->middleware([]);
-    Route::post('/payments/create/success', [PaymentController::class, 'success'])->middleware([]);
+    Route::post('/payments/create/success', [PaymentController::class, 'success2'])->middleware([]);
+
+    Route::get('/admin/payments/manual', [PaymentController::class, 'indexManual'])->middleware([]);
+    Route::post('/admin/payments/manual/confirm', [PaymentController::class, 'success2'])->middleware([]);
+    Route::post('/admin/payments/manual/deny', [PaymentController::class, 'failed'])->middleware([]);
+
 
     // History Ticket
     Route::get('/history-tickets', [TicketController::class, 'history'])->middleware([]);

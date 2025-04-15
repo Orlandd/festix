@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
+            $table->timestamp('expired_at')->nullable();
+            $table->string('image')->nullable();
         });
     }
 

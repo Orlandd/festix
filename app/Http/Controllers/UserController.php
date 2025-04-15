@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+
     public function register(Request $request)
     {
         try {
@@ -24,9 +26,9 @@ class UserController extends Controller
 
             $request->validate([
                 'name' => ['required', 'max:255'],
-                'username' => ['required', 'unique:users'],
-                'email' => ['required', 'unique:users'],
-                'password' => ['required', 'max:255'],
+                'username' => ['required', 'min:4', 'unique:users'],
+                'email' => ['required', 'email', 'unique:users'],
+                'password' => ['required', 'min:8', 'max:255'],
             ]);
 
             $roleId = Role::where('name', 'user')->first()->id;
@@ -49,12 +51,17 @@ class UserController extends Controller
 
             Mail::to($user->email)->send(new OtpMail($data));
 
-            return response(['data' => $user]);
+            return response(['data' => $user], 201);
+        } catch (ValidationException $e) {
+            return response([
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('User creation failed', ['error' => $e->getMessage()]);
             return response(['error' => 'User creation failed'], 500);
         }
     }
+
 
     public function newPassword(Request $request)
     {

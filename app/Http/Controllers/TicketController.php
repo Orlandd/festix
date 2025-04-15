@@ -15,8 +15,11 @@ class TicketController extends Controller
     public function history()
     {
         try {
-            $tickets = Ticket::with(['eventPrice.event.eventImage'])
+            $tickets = Ticket::with(['eventPrice.event.eventImage', 'payment'])
                 ->where('user_id', Auth::id())
+                ->whereHas('payment', function ($query) {
+                    $query->where('status', 'success');
+                })
                 ->orderByRaw('status DESC, created_at DESC') // Status 1 dahulu, lalu status 0, dan urutkan berdasarkan created_at terbaru
                 ->get();
 
