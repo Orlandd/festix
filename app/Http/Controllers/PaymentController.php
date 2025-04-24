@@ -40,6 +40,66 @@ class PaymentController extends Controller
         }
     }
 
+    public function indexCash()
+    {
+        try {
+            $events = Event::with([
+                'eventPrice.tickets.payment',
+                'eventPrice.seatCategory',
+                'vanue.venueImage',
+                'eventImage'
+            ])->latest()->get();
+
+            $eventsWithTotal = $events->map(function ($event) {
+                $totalCash = 0;
+                $totalTicketSold = 0;
+                $ticketsPerPrice = [];
+
+                foreach ($event->eventPrice as $eventPrice) {
+                    $seatCategoryName = $eventPrice->seatCategory->name ?? 'Unknown'; // Ambil nama seat category
+
+                    foreach ($eventPrice->tickets as $ticket) {
+                        if ($ticket->payment && $ticket->payment->status === 'success') {
+                            $totalCash += $eventPrice->price;
+                            $totalTicketSold++;
+
+                            $key = $eventPrice->price . '-' . $seatCategoryName;
+
+                            if (isset($ticketsPerPrice[$key])) {
+                                $ticketsPerPrice[$key]['total_ticket']++;
+                            } else {
+                                $ticketsPerPrice[$key] = [
+                                    'price' => $eventPrice->price,
+                                    'seat_category_name' => $seatCategoryName,
+                                    'total_ticket' => 1
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                $event->total_cash = $totalCash;
+                $event->total_ticket_sold = $totalTicketSold;
+                $event->tickets_per_price = array_values($ticketsPerPrice); // Reset index array
+
+                return $event;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $eventsWithTotal
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
+    }
+
+
+
     /**
      * Show the form for creating a new resource.
      */

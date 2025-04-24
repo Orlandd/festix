@@ -84,4 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // verify ticket
     Route::post('/verify-ticket', [TicketController::class, 'verify'])->middleware([]);
+
+    // cash
+    Route::get('/cash/global/index', [PaymentController::class, 'indexCash'])->middleware([]);
 });

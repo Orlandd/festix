@@ -35,4 +35,9 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'payment_id');
+    }
 }

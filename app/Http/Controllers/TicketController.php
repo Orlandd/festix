@@ -15,7 +15,7 @@ class TicketController extends Controller
     public function history()
     {
         try {
-            $tickets = Ticket::with(['eventPrice.event.eventImage', 'payment'])
+            $tickets = Ticket::with(['eventPrice.event.eventImage', 'eventPrice.event.vanue', 'payment'])
                 ->where('user_id', Auth::id())
                 ->whereHas('payment', function ($query) {
                     $query->where('status', 'success');
