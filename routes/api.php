@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/payments/create/success', [PaymentController::class, 'success2'])->middleware([]);
 
     Route::get('/admin/payments/manual', [PaymentController::class, 'indexManual'])->middleware([]);
+    Route::get('/admin/payments', [PaymentController::class, 'indexData'])->middleware([]);
     Route::post('/admin/payments/manual/confirm', [PaymentController::class, 'success2'])->middleware([]);
     Route::post('/admin/payments/manual/deny', [PaymentController::class, 'failed'])->middleware([]);
 

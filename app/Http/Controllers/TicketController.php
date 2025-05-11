@@ -40,8 +40,20 @@ class TicketController extends Controller
     public function verify(Request $request)
     {
         try {
-            $ticket = Ticket::where('code', $request->code)->first();
-            if ($ticket->status == true) {
+            $ticket = Ticket::with(['eventPrice'])->where('code', $request->code)->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ticket not found',
+                    'data' => [
+                        'code' => $request->code,
+                        'event_id' => $request->event_id,
+                    ]
+                ], 404);
+            }
+
+            if ($ticket->status == true && $ticket->eventPrice->event_id == $request->event_id) {
                 $ticket->status = false;
                 $ticket->save();
             } else {
@@ -63,6 +75,7 @@ class TicketController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Display a listing of the resource.

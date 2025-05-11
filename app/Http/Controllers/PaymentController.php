@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
+use App\Mail\Ticket as MailTicket;
 use App\Models\Event;
 use App\Models\EventPrice;
 use App\Models\Ticket;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -26,6 +28,24 @@ class PaymentController extends Controller
     {
         try {
             $payments = Payment::with('eventPrice.event.eventImage')->where('user_id', Auth::user()->id)->latest()->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $payments
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
+    }
+
+    public function indexData()
+    {
+        try {
+            $payments = Payment::with('eventPrice.event.eventImage')->latest()->get();
 
             return response()->json([
                 'status' => 'success',
@@ -831,6 +851,9 @@ class PaymentController extends Controller
             $payment->status = 'success';
             $payment->save();
 
+            $tickets = Ticket::with(['eventPrice.event.eventImage', 'eventPrice.seatCategory', 'eventPrice.event.vanue'])->where('payment_id', $payment->id)->get();
+
+            Mail::to(Auth::user()->email)->send(new MailTicket($tickets));
 
             return response()->json([
                 'status' => 'success',
