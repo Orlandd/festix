@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthTokenController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleController;
@@ -88,4 +89,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // cash
     Route::get('/cash/global/index', [PaymentController::class, 'indexCash'])->middleware([]);
+
+    // dashboard
+    Route::get('/admin/dashboard/ongoing', [DashboardController::class, 'ongoing'])->middleware([]);
+    Route::get('/admin/dashboard/users', [DashboardController::class, 'user'])->middleware([]);
+    Route::get('/admin/dashboard/revenue', [DashboardController::class, 'revenue'])->middleware([]);
 });
