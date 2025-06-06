@@ -73,9 +73,27 @@ class SeatCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SeatCategory $seatCategory)
+    public function show($id)
     {
-        //
+        try {
+            $seatCategory = SeatCategory::find($id);
+            if (!$seatCategory) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Seat Category not found'
+                ], 404);
+            }
+            return response()->json([
+                'status' => 'success',
+                'data' => $seatCategory
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Internal Server Error'
+            ], 500);
+        }
     }
 
     /**

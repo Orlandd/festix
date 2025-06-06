@@ -18,6 +18,16 @@ RUN apt update && apt install -y \
     && docker-php-ext-install zip pdo_sqlite gd \
     && docker-php-ext-enable zip pdo_sqlite gd
 
+# RUN apt update && apt install -y \
+#     zip \
+#     libzip-dev \
+#     libpng-dev \
+#     libjpeg-dev \
+#     libfreetype6-dev \
+#     default-mysql-client \
+#     && docker-php-ext-install zip pdo_mysql gd \
+#     && docker-php-ext-enable zip pdo_mysql gd
+
 # Copy Composer
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 

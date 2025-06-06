@@ -59,7 +59,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Seat Category
     Route::get('/seat-categories', [SeatCategoryController::class, 'index'])->middleware([]);
+    Route::get('/seat-categories/{id}', [SeatCategoryController::class, 'show'])->middleware([]);
     Route::post('/seat-categories/create', [SeatCategoryController::class, 'store'])->middleware(['AbleCreateVenue']);
+    Route::patch('/seat-categories/update/{id}', [SeatCategoryController::class, 'update'])->middleware(['AbleCreateVenue']);
+    Route::delete('/seat-categories/delete/{id}', [SeatCategoryController::class, 'destroy'])->middleware(['AbleCreateVenue']);
 
     // Event
     Route::get('/events/{id}/seats', [EventController::class, 'showSeat'])->middleware([]);

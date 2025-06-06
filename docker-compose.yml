@@ -1,8 +1,8 @@
 version: '3'
 services:
   laravel-franken:
-    container_name: laravel_franken
-    image: image_laravel_franken
+    container_name: festix_franken_sqlite
+    image: image_festix_franken_sqlite
     build: .
     ports:
       - "8000:80"
