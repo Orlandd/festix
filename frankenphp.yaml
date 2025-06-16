@@ -1,0 +1,6 @@
+auto_https: off
+
+app:
+  handler:
+    type: php
+    root: /app/public

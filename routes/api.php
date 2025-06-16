@@ -82,6 +82,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/admin/payments/manual/confirm', [PaymentController::class, 'success2'])->middleware([]);
     Route::post('/admin/payments/manual/deny', [PaymentController::class, 'failed'])->middleware([]);
 
+    Route::get('/recipt/{id}', [PaymentController::class, 'recipt'])->middleware([]);
 
     // History Ticket
     Route::get('/history-tickets', [TicketController::class, 'history'])->middleware([]);

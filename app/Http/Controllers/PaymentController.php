@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Mail\Ticket as MailTicket;
+use App\Mail\Receipt as MailRecipt;
 use App\Models\Event;
 use App\Models\EventPrice;
 use App\Models\Ticket;
@@ -652,6 +653,10 @@ class PaymentController extends Controller
 
             Ticket::where('payment_id', $request->paymentId)->delete();
 
+            $dataPayment = Payment::with(['eventPrice.event.eventImage', 'eventPrice.seatCategory'])->find($data['paymentId']);
+
+            Mail::to(Auth::user()->email)->send(new MailRecipt($dataPayment));
+
             return response()->json([
                 'status' => 'success',
             ]);
@@ -855,8 +860,38 @@ class PaymentController extends Controller
 
             Mail::to(Auth::user()->email)->send(new MailTicket($tickets));
 
+            $dataPayment = Payment::with(['eventPrice.event.eventImage', 'eventPrice.seatCategory'])->find($data['paymentId']);
+
+            Mail::to(Auth::user()->email)->send(new MailRecipt($dataPayment));
+
             return response()->json([
                 'status' => 'success',
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function recipt($id)
+    {
+        try {
+            $payment = Payment::with(['eventPrice.event.eventImage', 'eventPrice.seatCategory'])->find($id);
+            if (!$payment) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data not found'
+                ], 404);
+            }
+
+            Mail::to(Auth::user()->email)->send(new MailRecipt($payment));
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Recipt sent to your email'
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
